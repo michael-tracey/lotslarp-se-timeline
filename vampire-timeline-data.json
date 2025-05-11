@@ -2608,22 +2608,6 @@
     ]
   },
   {
-    "name": "Port-au-Prince, Haiti",
-    "isPoint": true,
-    "coords": [
-      18.59,
-      -72.31
-    ],
-    "timeline": [
-      {
-        "start": 1495,
-        "end": 2025,
-        "sect": "Contested",
-        "description": "Torn between Sects, Clans, and bloodlines."
-      }
-    ]
-  },
-  {
     "name": "Raleigh, NC",
     "timeline": [
       {
