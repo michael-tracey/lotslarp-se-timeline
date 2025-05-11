@@ -400,12 +400,12 @@
     "timeline": [
       {
         "start": 1495,
-        "end": 1906,
+        "end": 1913,
         "sect": "Unknown",
         "description": "Early period - Status Unknown."
       },
       {
-        "start": 1906,
+        "start": 1913,
         "end": 1995,
         "sect": "Sabbat",
         "description": "Falls under Sabbat influence spreading north from Mexico."
@@ -476,12 +476,12 @@
     "timeline": [
       {
         "start": 1495,
-        "end": 1930,
+        "end": 1875,
         "sect": "Unknown",
         "description": "Early period - Status Unknown."
       },
       {
-        "start": 1931,
+        "start": 1875,
         "end": 2025,
         "sect": "Camarilla",
         "description": "Camarilla influence established."
@@ -645,27 +645,21 @@
       },
       {
         "start": 1865,
-        "end": 1995,
+        "end": 1999,
         "sect": "Camarilla",
-        "description": "Post-Civil War period - Camarilla influence established."
+        "description": "Post-Civil War period - Camarilla influence established, Held by Prince Ginevra Bellecourt."
       },
       {
-        "start": 1996,
+        "start": 1999,
         "end": 2000,
         "sect": "Sabbat",
-        "description": "Fell to Sabbat Crusade."
+        "description": "Fell to Sabbat Crusade, Bellecourt never disbanded or left the city, ruling a Prince from the resistance underground."
       },
       {
         "start": 2001,
         "end": 2023,
         "sect": "Camarilla",
-        "description": "Camarilla pushes back."
-      },
-      {
-        "start": 2023,
-        "end": 2025,
-        "sect": "Camarilla",
-        "description": "Held by Prince Ginevra Bellecourt."
+        "description": "Camarilla pushes back, and Prince Ginevra Bellecourt succeeds in recovering her Praxis."
       }
     ]
   },
@@ -830,27 +824,21 @@
     "timeline": [
       {
         "start": 1495,
-        "end": 1902,
+        "end": 1804,
         "sect": "Unknown",
         "description": "Early period - Status Unknown."
       },
       {
-        "start": 1902,
-        "end": 1988,
+        "start": 1804,
+        "end": 1999,
         "sect": "Sabbat",
         "description": "Falls under Sabbat influence."
-      },
-      {
-        "start": 1989,
-        "end": 1998,
-        "sect": "Camarilla",
-        "description": "Brief Camarilla control."
       },
       {
         "start": 1999,
         "end": 2025,
         "sect": "Contested",
-        "description": "Contested on the Texas border."
+        "description": "Contested on the Texas border, after Crusade push back from the Camarilla"
       }
     ]
   },
@@ -2056,28 +2044,6 @@
     ]
   },
   {
-    "name": "Mexico City",
-    "isPoint": true,
-    "coords": [
-      19.4326,
-      -99.1332
-    ],
-    "timeline": [
-      {
-        "start": 1495,
-        "end": 1870,
-        "sect": "Unknown",
-        "description": "Early period - Status Unknown (Likely native vampire influence)."
-      },
-      {
-        "start": 1871,
-        "end": 2025,
-        "sect": "Sabbat",
-        "description": "Under Sabbat control."
-      }
-    ]
-  },
-  {
     "name": "Miami-Fort Lauderdale-West Palm Beach, FL",
     "timeline": [
       {
@@ -2872,27 +2838,21 @@
     "timeline": [
       {
         "start": 1495,
-        "end": 1904,
-        "sect": "Unknown",
+        "end": 1798,
+        "sect": "Unclaimed",
         "description": "Early period - Status Unknown."
       },
       {
-        "start": 1904,
+        "start": 1798,
         "end": 1990,
         "sect": "Sabbat",
         "description": "Falls under Sabbat influence spreading north from Mexico."
       },
       {
         "start": 1991,
-        "end": 2000,
-        "sect": "Contested",
-        "description": "Contested due to Camarilla pressure."
-      },
-      {
-        "start": 2001,
         "end": 2025,
         "sect": "Contested",
-        "description": "Contested on the Texas border."
+        "description": "Contested due to Camarilla pressure."
       }
     ]
   },
@@ -3255,12 +3215,12 @@
     "timeline": [
       {
         "start": 1495,
-        "end": 1930,
+        "end": 1801,
         "sect": "Unknown",
         "description": "Early period - Status Unknown."
       },
       {
-        "start": 1931,
+        "start": 1801,
         "end": 1988,
         "sect": "Sabbat",
         "description": "Falls under Sabbat influence."
@@ -4074,7 +4034,7 @@
         "start": 1865,
         "end": 1998,
         "sect": "Camarilla",
-        "description": "Post-Civil War period - Status Unknown."
+        "description": "Post-Civil War period, Stable Camarilla Domain."
       },
       {
         "start": 1998,
@@ -4206,6 +4166,93 @@
       },
       {
         "start": 1951,
+        "end": 2025,
+        "sect": "Camarilla",
+        "description": "Camarilla regains control."
+      }
+    ]
+  },
+  {
+    "name": "Wichita, KS",
+    "timeline": [
+      {
+        "start": 1495,
+        "end": 1819,
+        "sect": "Unknown",
+        "description": "Early period - Status Unknown."
+      },
+      {
+        "start": 1819,
+        "end": 1832,
+        "sect": "Sabbat",
+        "description": "Falls under Sabbat influence spreading north from Texas."
+      },
+      {
+        "start": 1832,
+        "end": 1902,
+        "sect": "Camarilla",
+        "description": "Comes back to Camarilla as the railroad influence starts to make the city grow"
+      },
+      {
+        "start": 1902,
+        "end": 1943,
+        "sect": "Sabbat",
+        "description": "Sabbat regains control, pushing north from Mexico, in a completely unexpected coop, and a dead Prince as the Packs invaded."
+      },
+      {
+        "start": 1943,
+        "end": 1969,
+        "sect": "Anarchs",
+        "description": "Anarch Baron claims ownership as most of the packs in Wichita are nomadic.   "
+      },
+      {
+        "start": 1969,
+        "end": 2025,
+        "sect": "Camarilla",
+        "description": "The Anarch Prince flips to the tower after unkonwn treaty is signed with the Justicariate."
+      }
+    ]
+  },
+  {
+    "name": "Topeka, KS",
+    "timeline": [
+      {
+        "start": 1495,
+        "end": 1820,
+        "sect": "Unclaimed",
+        "description": "Early period - Status Unknown."
+      },
+      {
+        "start": 1821,
+        "end": 2025,
+        "sect": "Camarilla",
+        "description": "Camarilla influence spreads inland."
+      }
+    ]
+  },
+  {
+    "name": "Fayetteville-Springdale-Rogers, AR-MO",
+    "timeline": [
+      {
+        "start": 1495,
+        "end": 1889,
+        "sect": "Unknown",
+        "description": "Early period - Status Unknown."
+      },
+      {
+        "start": 1889,
+        "end": 1952,
+        "sect": "Sabbat",
+        "description": "Falls under Sabbat influence spreading north from Texas."
+      },
+      {
+        "start": 1952,
+        "end": 1965,
+        "sect": "Anarchs",
+        "description": "Brief Anarch control."
+      },
+      {
+        "start": 1965,
         "end": 2025,
         "sect": "Camarilla",
         "description": "Camarilla regains control."

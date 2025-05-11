@@ -69,6 +69,7 @@
          #map {
              width: 100%;
              flex-grow: 1;
+             position: relative; /* Needed for legend positioning */
          }
         .timeline-container {
             margin-top: 10px;
@@ -337,6 +338,9 @@
 
 
          @media (max-width: 768px) {
+             h1 {
+                 display: none; /* Remove header on mobile */
+             }
              .main-content-container {
                  flex-direction: column;
                  gap: 10px;
@@ -346,9 +350,20 @@
                  width: 100%;
                  max-height: none;
                  height: auto;
+                 order: 3; /* Sidebar comes after map and timeline */
              }
              #map-container {
-                 height: 400px;
+                 height: 400px; /* Adjust map height for mobile */
+                 order: 1; /* Map comes first */
+                 flex-direction: column; /* Stack map and timeline vertically */
+             }
+             #map {
+                 flex-grow: 1;
+                 height: auto; /* Allow map to take available height */
+             }
+             .timeline-container {
+                 order: 2; /* Timeline comes after the map */
+                 margin-top: 0; /* Remove top margin */
              }
              .timeline-container input[type="range"] {
                  width: 95%;
@@ -361,9 +376,23 @@
                  margin: 0 5px;
              }
              .legend {
-                 bottom: 10px;
-                 right: 10px;
-                 padding: 8px;
+                 position: static; /* Position legend statically within map container */
+                 margin-top: 10px; /* Add space below map */
+                 width: 100%; /* Make legend take full width */
+                 max-width: none; /* Remove max width */
+                 display: grid; /* Use grid for 2 columns */
+                 grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+                 gap: 5px; /* Gap between legend items */
+                 padding: 10px; /* Adjust padding */
+                 box-sizing: border-box; /* Include padding in width */
+             }
+             .legend h4 {
+                 grid-column: span 2; /* Make title span both columns */
+                 text-align: center;
+                 margin-bottom: 10px;
+             }
+             .legend div {
+                 margin-bottom: 0; /* Remove bottom margin */
              }
               #map-year-display {
                   font-size: 2em;
@@ -440,6 +469,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+    // Define the strict bounds for the map (unchanged)
     const southWestBound = L.latLng(22.4970361396, -98.034689445);
     const northEastBound = L.latLng(40.0887528861, -69.9140855856);
     const strictBounds = L.latLngBounds(southWestBound, northEastBound);
@@ -451,6 +481,7 @@
         maxBoundsViscosity: 1.0
     });
 
+    // Fit the map to the strict bounds initially
     map.fitBounds(strictBounds);
     initialZoom = map.getZoom();
 
@@ -554,6 +585,7 @@
         document.getElementById('current-year').innerText = year;
         document.getElementById('map-year-display').innerText = year;
 
+        // Remove existing layers
         if (msaLayer) {
             map.removeLayer(msaLayer);
         }
@@ -562,6 +594,9 @@
         }
         leafletLayers = {};
 
+        let boundsToFit = null;
+
+        // Add MSA polygon layer
         if (msaGeoJSON && timelineData.length > 0) {
              const filteredGeoJSON = {
                  type: "FeatureCollection",
@@ -586,11 +621,17 @@
                     });
                 }
             }).addTo(map);
+
+            if (msaLayer.getBounds().isValid()) {
+                boundsToFit = msaLayer.getBounds();
+            }
         }
 
+        // Add point layer (points are added, but not used for fitting bounds)
         const points = timelineData.filter(t => t.isPoint);
+        pointLayer = L.layerGroup().addTo(map); // Always initialize pointLayer
+
         if (points.length > 0) {
-            pointLayer = L.layerGroup().addTo(map);
             points.forEach(point => {
                  const year = parseInt(document.getElementById('year-slider').value);
                  const sect = getSectAtYear(point.timeline, year);
@@ -616,6 +657,24 @@
                       displayContentInChangesDiv("<h4>" + point.name + "</h4>" + popupContent);
                  });
             });
+        }
+
+        // Fit map to bounds with error handling, only considering msaLayer bounds
+        try {
+            if (boundsToFit && boundsToFit.isValid()) {
+                map.fitBounds(boundsToFit);
+            } else {
+                // Fallback to strict bounds if no valid MSA polygon bounds
+                map.fitBounds(strictBounds);
+            }
+        } catch (error) {
+            console.error("Error fitting map bounds:", error);
+            // Fallback to strict bounds if fitting fails
+            try {
+                map.fitBounds(strictBounds);
+            } catch (fallbackError) {
+                console.error("Error fitting strict bounds as fallback:", fallbackError);
+            }
         }
     }
 
@@ -927,7 +986,8 @@
         speedButtons.forEach(button => {
             button.addEventListener('click', function() {
                 speedButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
+                this.classList.remove('active'); // Remove active from previously active button
+                this.classList.add('active'); // Add active to the clicked button
                 animationSpeed = parseFloat(this.dataset.speed);
                 if (!isPlaying) {
                     playTimeline();
