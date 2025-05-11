@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LotsLarp Sect Timeline</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; background-color: #1a1a1a; color: #eee; }
+        #map { height: 600px; width: 100%; background-color: #333; position: relative; } /* Added position: relative */
+        .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
+        h1 { text-align: center; color: #e5e5e5; margin-bottom: 20px; }
+        .timeline-container { margin-top: 20px; text-align: center; }
+        .timeline-container label { margin-right: 10px; font-size: 1.1em; }
+        .timeline-container input[type="range"] { width: 80%; max-width: 600px; cursor: pointer; }
+        .timeline-controls { display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+        .timeline-controls button {
+            margin: 0 5px;
+            padding: 8px 15px;
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .timeline-controls button:hover {
+            background-color: #e03d00;
+        }
+        .timeline-container #current-year { font-size: 1.2em; font-weight: bold; margin-left: 10px; color: #ff4500; }
+        .legend {
+            position: absolute; /* Position legend over the map */
+            bottom: 20px; /* Adjust position */
+            right: 20px; /* Adjust position */
+            background: rgba(0, 0, 0, 0.8); /* Dark background */
+            color: #eee; /* Light text */
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000; /* Ensure legend is above map elements */
+            width: auto; /* Allow width to fit content */
+            max-width: 150px; /* Optional: set a max-width if needed */
+        }
+        .legend h4 {
+            color: #ff4500; /* Highlight legend title */
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
+        .legend div { margin-bottom: 5px; color: #eee;} /* Ensure legend item text is light */
+
+         /* Style for the Leaflet popup container */
+        .leaflet-popup .leaflet-popup-content-wrapper {
+            background: rgba(0, 0, 0, 0.9); /* Black background */
+            color: #eee; /* Light text */
+            border-radius: 8px;
+        }
+
+        /* Style for the Leaflet popup tip */
+        .leaflet-popup .leaflet-popup-tip {
+             background: rgba(0, 0, 0, 0.9); /* Match background */
+        }
+
+         /* Style for the popup content */
+        .sect-popup .leaflet-popup-content {
+            font-size: 1.1em;
+        }
+        .sect-popup .leaflet-popup-content b {
+            color: #ff4500; /* Highlight territory name */
+        }
+
+        /* Style for the large multi-change popup */
+        .multi-change-popup {
+            position: absolute;
+            top: 50%;
+            left: 20px; /* Position on the left side */
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.9); /* Dark background */
+            color: #eee; /* Light text */
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            max-width: 250px; /* Made the popup narrower */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .multi-change-popup h4 {
+            margin-top: 0;
+            color: #ff4500;
+        }
+        .multi-change-popup ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .multi-change-popup li {
+            margin-bottom: 5px;
+        }
+
+        /* Style for the year display on the map */
+        #map-year-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff4500;
+            z-index: 800; /* Above tiles, below popups/legend */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Style for positioning Leaflet zoom controls */
+        .leaflet-control-container .leaflet-top.leaflet-left {
+             top: 60px; /* Position below the year display */
+             left: 10px;
+        }
+
+        #load-data-button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #007bff; /* Blue color for load button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        #load-data-button:hover {
+            background-color: #0056b3;
+        }
+
+        #file-input-container {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #file-input-container input[type="file"] {
+            display: none; /* Hide the default file input */
+        }
+
+        #file-input-container label {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+         #file-input-container label:hover {
+            background-color: #0056b3;
+         }
+
+         #changes-display {
+             margin-top: 20px;
+             padding: 15px;
+             background: rgba(0, 0, 0, 0.8);
+             color: #eee;
+             border-radius: 8px;
+             display: none; /* Hidden by default */
+             text-align: left;
+         }
+         #changes-display h4 {
+             margin-top: 0;
+             color: #ff4500;
+         }
+         #changes-display ul {
+             padding-left: 20px;
+             margin-bottom: 0;
+         }
+         #changes-display li {
+             margin-bottom: 5px;
+         }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>LotsLarp Sect timeline</h1>
+    <div id="map">
+         <div class="legend">
+            <h4>Sect Control</h4>
+            <div><i style="background:#ff0000;"></i> Sabbat</div>
+            <div><i style="background:#0000ff;"></i> Camarilla</div>
+            <div><i style="background:#00ff00;"></i> Anarchs</div>
+            <div><i style="background:#ffff00;"></i> Independent Alliance</div>
+            <div><i style="background:#ffa500;"></i> Vodouists (New Orleans)</div>
+            <div><i style="background:#9b870c;"></i> Southern Lords</div>
+            <div><i style="background:#800080;"></i> Contested</div>
+            <div><i style="background:#cccccc;"></i> Unclaimed/Unknown</div>
+        </div>
+         <div id="map-year-display">1495</div>
+    </div>
+
+
+    <div class="timeline-container">
+        <label for="year-slider">Year:</label>
+        <input type="range" id="year-slider" min="1495" max="2025" value="1495" step="1">
+        <span id="current-year">1495</span>
+        <div class="timeline-controls">
+            <button id="play-pause-button">Play</button>
+            <button id="load-data-button">Load Data (External)</button>
+        </div>
+         <div id="file-input-container">
+            <label for="local-file-input">Load Data (Local File)</label>
+            <input type="file" id="local-file-input" accept=".json">
+         </div>
+         <div style="margin-top: 10px;">
+             <input type="checkbox" id="hide-popups-checkbox">
+             <label for="hide-popups-checkbox">Hide Popups During Timeline</label>
+         </div>
+    </div>
+
+    <div id="changes-display">
+        <h4>Timeline Changes:</h4>
+        <ul>
+            </ul>
+    </div>
+
+
+</div>
+
+<script>
+    // Define the bounding box for the map view
+    const southWestBound = L.latLng(22.4970361396, -98.034689445);
+    const northEastBound = L.latLng(40.0887528861, -69.9140855856);
+    const strictBounds = L.latLngBounds(southWestBound, northEastBound);
+
+    let initialZoom; // Variable to store the initial zoom level
+
+    // Initialize the map
+    const map = L.map('map', {
+        maxBounds: strictBounds, // Set the maximum bounds
+        maxBoundsViscosity: 1.0 // Prevent panning outside the bounds
+    });
+
+    // Fit the map to the bounds initially and store the resulting zoom level
+    map.fitBounds(strictBounds);
+    initialZoom = map.getZoom();
+
+    // Set the minimum zoom level after the initial fitBounds
+    map.setMinZoom(initialZoom);
+
+
+    // Add a tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+        noWrap: true // Prevent map wrapping horizontally
+    }).addTo(map);
+
+    // Define colors for each sect
+    const sectColors = {
+        "Sabbat": "#ff0000",
+        "Camarilla": "#0000ff",
+        "Anarchs": "#00ff00",
+        "Independent Alliance": "#ffff00",
+        "Vodouists": "#ffa500", // Specific color for Vodouists in New Orleans
+        "Southern Lords": "#9b870c", // Color for Southern Lords
+        "Contested": "#800080",
+        "Unclaimed": "#cccccc",
+        "Unknown": "#cccccc" // Default color
+    };
+
+    let timelineData = []; // Array to hold timeline data loaded from JSON
+    let msaGeoJSON; // Variable to store the loaded GeoJSON data
+
+    let msaLayer; // Layer to hold MSA polygons
+    let pointLayer; // Layer to hold point markers (for places like Port-au-au-Prince)
+    let animationInterval; // Variable to hold the interval timer for autoplay
+    let isPlaying = false; // State variable for play/pause
+    let groupedChangePoints = []; // Array to store grouped timeline change events by year
+    let currentChangeGroupIndex = 0; // Index for the current change group in autoplay
+    let leafletLayers = {}; // Object to store references to Leaflet layers by territory name
+    let multiChangePopup = null; // Variable to hold the multi-change popup element
+    let hidePopupsCheckbox; // Reference to the hide popups checkbox
+    let changesDisplayDiv; // Reference to the changes display div
+
+
+    // Function to get the sect controlling a territory at a given year
+    function getSectAtYear(territoryTimeline, year) {
+        for (const period of territoryTimeline) {
+            if (year >= period.start && year <= period.end) {
+                return period.sect;
+            }
+        }
+        return "Unknown"; // Should not happen if timeline is complete
+    }
+
+    // Function to generate popup content including historical changes
+    function generatePopupContent(territoryName, currentYear, showFullHistory = true) {
+        const territoryData = timelineData.find(t => t.name === territoryName);
+        if (!territoryData) return `<b>${territoryName}</b><br>Data not available.`;
+
+        const currentSect = getSectAtYear(territoryData.timeline, currentYear);
+        let content = `<b>${territoryName}</b><br>Current Sect (${currentYear}): ${currentSect}`;
+
+        if (showFullHistory) {
+            content += `<br><br>Timeline:<ul>`;
+             // Filter and sort timeline entries up to the current year
+            const historicalChanges = territoryData.timeline
+                .filter(period => period.start <= currentYear)
+                .sort((a, b) => a.start - b.start);
+
+            historicalChanges.forEach(period => {
+                // Only show the start of a period as a change event in the history list
+                if (period.start <= currentYear) {
+                     content += `<li>Year ${period.start}: ${period.description || `Control changes to ${period.sect}`}</li>`;
+                }
+            });
+            content += '</ul>';
+        } else {
+             // Find the most recent change description at or before the current year
+             const mostRecentChange = territoryData.timeline.slice().reverse().find(period => period.start <= currentYear);
+             if (mostRecentChange && mostRecentChange.start <= currentYear) {
+                  content += `<br>${mostRecentChange.description || `Control changes to ${mostRecentChange.sect}`}`;
+             }
+        }
+
+        return content;
+    }
+
+
+    // Function to style MSA polygons based on sect
+    function stylePolygon(feature) {
+        const msaName = feature.properties.NAME; // Adjust property name based on GeoJSON
+        const year = parseInt(document.getElementById('year-slider').value);
+
+        // Find the timeline data for this MSA
+        const territoryData = timelineData.find(t => t.name === msaName);
+
+        let sect = "Unknown";
+        if (territoryData) {
+            sect = getSectAtYear(territoryData.timeline, year);
+        }
+
+        return {
+            fillColor: sectColors[sect] || sectColors["Unknown"],
+            weight: 1,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.7
+        };
+    }
+
+     // Function to update the map based on the selected year
+    function updateMap(year) {
+        document.getElementById('current-year').innerText = year;
+        document.getElementById('map-year-display').innerText = year; // Update year display on map
+
+        // Always clear and re-add layers to ensure valid Leaflet internal state
+        if (msaLayer) {
+            map.removeLayer(msaLayer);
+        }
+        if (pointLayer) {
+           map.removeLayer(pointLayer);
+        }
+        leafletLayers = {}; // Clear stored layer references
+
+        // Add MSA layer with updated styling
+        if (msaGeoJSON && timelineData.length > 0) { // Check if GeoJSON and timeline data are loaded
+             // Filter GeoJSON features to include only those present in timelineData
+             const filteredGeoJSON = {
+                 type: "FeatureCollection",
+                 features: msaGeoJSON.features.filter(feature =>
+                     timelineData.some(t => t.name === feature.properties.NAME)
+                 )
+             };
+
+
+            msaLayer = L.geoJson(filteredGeoJSON, { // Use filtered GeoJSON
+                style: stylePolygon,
+                onEachFeature: function (feature, layer) {
+                    const msaName = feature.properties.NAME; // Adjust property name based on GeoJSON
+                    leafletLayers[msaName] = layer; // Store layer reference
+
+                    // Bind popup with dynamic content on click (shows full history)
+                    layer.on('click', function() {
+                        const currentYear = parseInt(document.getElementById('year-slider').value);
+                        const popupContent = generatePopupContent(msaName, currentYear, true); // Show full history on click
+                        layer.bindPopup(popupContent, {className: 'sect-popup'}).openPopup();
+                    });
+                }
+            }).addTo(map);
+        }
+
+
+        // Add point layer for non-MSA locations
+        const points = timelineData.filter(t => t.isPoint);
+        if (points.length > 0) {
+            pointLayer = L.layerGroup().addTo(map);
+            points.forEach(point => {
+                 const year = parseInt(document.getElementById('year-slider').value);
+                 const sect = getSectAtYear(point.timeline, year);
+                 const markerColor = sectColors[sect] || sectColors["Unknown"];
+
+                 // Create a simple circle marker
+                 const circleMarker = L.circleMarker(point.coords, {
+                     radius: 8,
+                     fillColor: markerColor,
+                     color: "#000",
+                     weight: 1,
+                     opacity: 1,
+                     fillOpacity: 0.8
+                 }).addTo(pointLayer);
+
+                 leafletLayers[point.name] = circleMarker; // Store layer reference
+
+                 // Bind popup with dynamic content on click (shows full history)
+                 circleMarker.on('click', function() {
+                      const currentYear = parseInt(document.getElementById('year-slider').value);
+                      const popupContent = generatePopupContent(point.name, currentYear, true); // Show full history on click
+                      circleMarker.bindPopup(popupContent, {className: 'sect-popup'}).openPopup();
+                 });
+            });
+        }
+    }
+
+    // Function to start the timeline animation
+    function playTimeline() {
+        const slider = document.getElementById('year-slider');
+        const playPauseButton = document.getElementById('play-pause-button');
+
+        if (!isPlaying) {
+            isPlaying = true;
+            playPauseButton.innerText = 'Pause';
+            // If starting from the beginning, reset index
+            if (parseInt(slider.value) === parseInt(slider.min)) {
+                 currentChangeGroupIndex = 0;
+            } else {
+                 // If starting from a later year, find the first change group at or after that year
+                 currentChangeGroupIndex = groupedChangePoints.findIndex(group => group.year >= parseInt(slider.value));
+                 if (currentChangeGroupIndex === -1) { // If no changes found after current year, reset
+                     currentChangeGroupIndex = 0;
+                 }
+            }
+
+            processNextChangeGroup(); // Start the animation sequence
+        }
+    }
+
+    // Function to process the next group of change points in the timeline
+    function processNextChangeGroup() {
+        // Clear previous multi-change popup and popups
+        hideMultiChangePopup();
+        map.closePopup();
+
+        if (currentChangeGroupIndex < groupedChangePoints.length) {
+            const changeGroup = groupedChangePoints[currentChangeGroupIndex];
+            const slider = document.getElementById('year-slider');
+
+            // Update the slider and map to the year of the change group
+            slider.value = changeGroup.year;
+            updateMap(changeGroup.year); // Update map styles for the new year
+
+            const hidePopups = hidePopupsCheckbox.checked;
+
+            if (changeGroup.changes.length > 1) {
+                // Multiple changes in this year
+                if (hidePopups) {
+                     displayChangesInDiv(changeGroup); // Display in div
+                } else {
+                     showMultiChangePopup(changeGroup); // Show large popup
+                }
+                // No panning for multi-change events
+            } else {
+                // Single change in this year
+                const change = changeGroup.changes[0];
+                const layer = leafletLayers[change.territoryName];
+                if (layer) {
+                    const popupContent = generatePopupContent(change.territoryName, change.year, false); // Show only current change
+
+                    if (hidePopups) {
+                         displayChangesInDiv(changeGroup); // Display in div
+                    } else {
+                         layer.bindPopup(popupContent, {className: 'sect-popup'}).openPopup(); // Show individual popup and pan
+                         // Pan to the location of the popup (only for single changes)
+                         let latLng;
+                         if (change.isPoint) {
+                             latLng = change.coords;
+                         } else {
+                             // For polygons, get the center of the bounds
+                             latLng = layer.getBounds().getCenter();
+                         }
+                         map.panTo(latLng);
+                    }
+                } else {
+                     console.error("Layer not found for:", change.territoryName);
+                }
+            }
+
+
+            // Schedule the next change group after a delay
+            animationInterval = setTimeout(() => {
+                currentChangeGroupIndex++;
+                processNextChangeGroup();
+            }, 1000); // 1 second delay
+        } else {
+            // End of timeline
+            pauseTimeline();
+            currentChangeGroupIndex = 0; // Reset for next play
+        }
+    }
+
+    // Function to pause the timeline animation
+    function pauseTimeline() {
+        isPlaying = false;
+        clearTimeout(animationInterval); // Use clearTimeout for setTimeout
+        document.getElementById('play-pause-button').innerText = 'Play';
+         map.closePopup(); // Close any open popup when paused
+         hideMultiChangePopup();
+         // Keep changes display div content visible if popups were hidden
+         if (!hidePopupsCheckbox.checked) {
+             clearChangesDisplayDiv(); // Clear only if popups were shown
+         }
+    }
+
+    // Generate and group change points from timeline data
+    function generateGroupedChangePoints() {
+        const changes = [];
+        timelineData.forEach(territory => {
+            territory.timeline.forEach(period => {
+                // Add a change point for the start of each period (except the very first period start year if it's 1495)
+                 if (period.start >= 1495) { // Include 1495 changes now
+                     changes.push({
+                         year: period.start,
+                         territoryName: territory.name,
+                         sect: period.sect,
+                         description: period.description, // Include the description
+                         isPoint: territory.isPoint, // Include isPoint flag
+                         coords: territory.coords // Include coords for points
+                     });
+                 }
+            });
+        });
+
+        // Sort changes primarily by year, secondarily by territory name for consistent order
+        changes.sort((a, b) => {
+            if (a.year !== b.year) {
+                return a.year - b.year;
+            }
+            return a.territoryName.localeCompare(b.territoryName);
+        });
+
+        // Group changes by year
+        const grouped = {};
+        changes.forEach(change => {
+            if (!grouped[change.year]) {
+                grouped[change.year] = [];
+            }
+            grouped[change.year].push(change);
+        });
+
+        // Convert grouped object to sorted array of change groups
+        groupedChangePoints = Object.keys(grouped).sort((a, b) => a - b).map(year => ({
+            year: parseInt(year),
+            changes: grouped[year]
+        }));
+
+         // Filter out change groups where the sect for a territory hasn't actually changed from the previous year
+         const filteredGroupedChanges = [];
+         let previousYearData = {}; // Keep track of sect control in the previous year
+
+         groupedChangePoints.forEach(changeGroup => {
+             const changesInThisYear = [];
+             changeGroup.changes.forEach(change => {
+                 // Find the previous period for this territory
+                 const territoryData = timelineData.find(t => t.name === change.territoryName);
+                 if (territoryData) {
+                     const previousPeriod = territoryData.timeline.slice().reverse().find(period => period.end < change.year);
+                     const previousSect = previousPeriod ? previousPeriod.sect : "Unknown";
+
+                     // Only include the change if the sect is different from the previous year
+                     if (change.sect !== previousSect) {
+                         changesInThisYear.push(change);
+                     }
+                 }
+             });
+
+             if (changesInThisYear.length > 0) {
+                 filteredGroupedChanges.push({
+                     year: changeGroup.year,
+                     changes: changesInThisYear
+                 });
+             }
+
+             // Update previousYearData with the state after this year's changes
+             changesInThisYear.forEach(change => {
+                 previousYearData[change.territoryName] = change.sect;
+             });
+         });
+
+         groupedChangePoints = filteredGroupedChanges;
+    }
+
+    // Function to show the large multi-change popup (used when popups are enabled)
+    function showMultiChangePopup(changeGroup) {
+        hideMultiChangePopup(); // Hide any existing popup first
+
+        multiChangePopup = document.createElement('div');
+        multiChangePopup.className = 'multi-change-popup';
+
+        let content = `<h4>Year ${changeGroup.year} Changes:</h4><ul>`;
+        changeGroup.changes.forEach(change => {
+            // Add data attribute to list item for line drawing reference
+            content += `<li data-territory-name="${change.territoryName}"><b>${change.territoryName}:</b> ${change.description}</li>`;
+        });
+        content += '</ul>';
+
+        multiChangePopup.innerHTML = content;
+        document.getElementById('map').appendChild(multiChangePopup);
+    }
+
+    // Function to hide the large multi-change popup
+    function hideMultiChangePopup() {
+        if (multiChangePopup) {
+            multiChangePopup.remove();
+            multiChangePopup = null;
+        }
+    }
+
+    // Function to display changes in the div below the map
+    function displayChangesInDiv(changeGroup) {
+        clearChangesDisplayDiv(); // Clear previous content
+
+        let content = `<h4>Year ${changeGroup.year} Changes:</h4><ul>`;
+        changeGroup.changes.forEach(change => {
+            content += `<li><b>${change.territoryName}:</b> ${change.description || `Control changes to ${change.sect}`}</li>`;
+        });
+        content += '</ul>';
+
+        changesDisplayDiv.innerHTML = content;
+        changesDisplayDiv.style.display = 'block'; // Show the div
+    }
+
+    // Function to clear the changes display div
+    function clearChangesDisplayDiv() {
+        if (changesDisplayDiv) {
+            changesDisplayDiv.innerHTML = '';
+            changesDisplayDiv.style.display = 'none'; // Hide the div
+        }
+    }
+
+
+    // Function to load data from the external JSON file
+    function loadTimelineDataExternal() {
+        fetch('vampire-timeline-data.json') // Assuming the JSON file is named vampire-timeline-data.json
+            .then(response => {
+                if (!response.ok) {
+                    // Only throw an error for non-NetworkError types
+                    if (!(error instanceof TypeError && error.message.includes('NetworkError'))) {
+                         throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    // For NetworkError, just log and don't display a message div
+                    console.error('NetworkError when attempting to fetch external timeline data.');
+                    return null; // Return null to indicate fetch failed but not a critical error to display
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) { // Only process if data was successfully fetched
+                    timelineData = data; // Update the timelineData array
+                    console.log("Timeline data loaded successfully from external file:", timelineData);
+                    // Regenerate change points and update map after loading new data
+                    generateGroupedChangePoints();
+                    updateMap(parseInt(document.getElementById('year-slider').value));
+                }
+            })
+            .catch(error => {
+                console.error('Error loading timeline data from external file:', error);
+                // Display an error message to the user for non-NetworkError types
+                if (!(error instanceof TypeError && error.message.includes('NetworkError'))) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.7); color: white; padding: 20px; border-radius: 10px; z-index: 1000;';
+                    errorDiv.innerText = 'Error loading timeline data from external file. Please ensure "vampire-timeline-data.json" is in the correct location and try again.';
+                    document.getElementById('map').appendChild(errorDiv);
+                }
+            });
+    }
+
+    // Function to load data from a local JSON file
+    function loadTimelineDataLocal(file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = JSON.parse(event.target.result);
+                timelineData = data; // Update the timelineData array
+                console.log("Timeline data loaded successfully from local file:", timelineData);
+                // Regenerate change points and update map after loading new data
+                generateGroupedChangePoints();
+                updateMap(parseInt(document.getElementById('year-slider').value));
+                // Removed error message display on successful local file load
+            } catch (e) {
+                console.error('Error parsing local timeline data:', e);
+                 // Display an error message to the user
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.7); color: white; padding: 20px; border-radius: 10px; z-index: 1000;';
+                errorDiv.innerText = 'Error parsing local timeline data. Please ensure the file is a valid JSON.';
+                document.getElementById('map').appendChild(errorDiv);
+            }
+        };
+        reader.onerror = function(event) {
+            console.error('Error reading local timeline data:', event.target.error);
+             // Display an error message to the user
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.7); color: white; padding: 20px; border-radius: 10px; z-index: 1000;';
+            errorDiv.innerText = 'Error reading local timeline data.';
+            document.getElementById('map').appendChild(errorDiv);
+        };
+        reader.readAsText(file);
+    }
+
+
+     // Update elements on map move/zoom - Modified to remove line drawing calls
+     map.on('move', () => {
+         // Hide popups and sidebar on any map movement
+         map.closePopup();
+         hideMultiChangePopup();
+         clearChangesDisplayDiv(); // Also clear the changes display div
+     });
+
+     // Also hide popups and sidebar on zoom - Modified to remove line drawing calls
+     map.on('zoom', () => {
+         map.closePopup();
+         hideMultiChangePopup();
+         clearChangesDisplayDiv(); // Also clear the changes display div
+     });
+
+
+    // Removed addTimelineChevrons function
+
+
+    // Load the MSA GeoJSON data and then load timeline data
+    // Removed the 'let' keyword here to prevent redeclaration
+    fetch('https://raw.githubusercontent.com/loganpowell/census-geojson/master/GeoJSON/20m/2017/metropolitan-statistical-area!micropolitan-statistical-area.json')
+        .then(response => response.json())
+        .then(data => {
+            msaGeoJSON = data; // Assign to the globally declared variable
+
+            // Filter GeoJSON to include only MSAs relevant to the timeline and within the bounding box
+            // This filtering will now happen after timelineData is loaded
+            // const relevantMSAData = {
+            //     type: "FeatureCollection",
+            //     features: msaGeoJSON.features.filter(feature => {
+            //         const msaName = feature.properties.NAME; // Adjust property name based on GeoJSON
+            //         const isRelevant = timelineData.some(t => t.name === msaName);
+            //         return isRelevant;
+            //     })
+            // };
+            // msaGeoJSON = relevantMSAData; // Use the filtered data
+
+
+            // Load timeline data from external file initially
+            loadTimelineDataExternal();
+
+        })
+        .catch(error => {
+            console.error('Error loading GeoJSON data:', error);
+            // Display an error message on the map or page
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.7); color: white; padding: 20px; border-radius: 10px; z-index: 1000;';
+            errorDiv.innerText = 'Error loading map data. Please try again later.';
+            document.getElementById('map').appendChild(errorDiv);
+        });
+
+    // Get reference to the hide popups checkbox and changes display div after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        hidePopupsCheckbox = document.getElementById('hide-popups-checkbox');
+        changesDisplayDiv = document.getElementById('changes-display');
+    });
+
+
+    // Event listener for the slider
+    document.getElementById('year-slider').addEventListener('input', function() {
+        // Pause animation if slider is manually moved
+        if (isPlaying) {
+            pauseTimeline();
+        }
+
+        const currentYear = parseInt(this.value);
+        updateMap(currentYear); // Update map styles
+
+        // Close any existing popups and clear changes display before showing the new one
+        map.closePopup();
+        hideMultiChangePopup();
+        clearChangesDisplayDiv(); // Clear the changes display div
+
+        // Find the most recent change group at or before the current year
+        const relevantChangeGroup = groupedChangePoints.slice().reverse().find(group => group.year <= currentYear);
+
+        const hidePopups = hidePopupsCheckbox ? hidePopupsCheckbox.checked : false; // Check if checkbox is available
+
+        if (relevantChangeGroup) {
+             if (relevantChangeGroup.changes.length > 1) {
+                 // Multiple changes in this year
+                 if (hidePopups) {
+                     displayChangesInDiv(relevantChangeGroup); // Display in div
+                 } else {
+                     showMultiChangePopup(relevantChangeGroup); // Show large popup
+                 }
+             } else {
+                 // Single change in this year
+                 const change = relevantChangeGroup.changes[0];
+                  const layer = leafletLayers[change.territoryName];
+                  if (layer) {
+                     const popupContent = generatePopupContent(change.territoryName, currentYear, false); // Only show current change on manual move
+
+                     if (hidePopups) {
+                          displayChangesInDiv(relevantChangeGroup); // Display in div
+                     } else {
+                          layer.bindPopup(popupContent, {className: 'sect-popup'}).openPopup(); // Bind and open directly
+
+                           // Pan to the location of the popup (only for single changes)
+                           let latLng;
+                           if (change.isPoint) {
+                               latLng = change.coords;
+                           } else {
+                               // For polygons, get the center of the bounds
+                               latLng = layer.getBounds().getCenter();
+                           }
+                          // Removed map.panTo(latLng); here to prevent panning on manual slider move
+                     }
+                 } else {
+                      console.error("Layer not found for:", change.territoryName);
+                 }
+             }
+        }
+
+    });
+
+    // Event listener for the play/pause button
+    document.getElementById('play-pause-button').addEventListener('click', function() {
+        if (isPlaying) {
+            pauseTimeline();
+        } else {
+            playTimeline();
+        }
+    });
+
+    // Event listener for the Load Data (External) button
+    document.getElementById('load-data-button').addEventListener('click', function() {
+        loadTimelineDataExternal(); // Call the function to load data from external URL
+    });
+
+    // Event listener for the Load Data (Local File) input
+    document.getElementById('local-file-input').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            loadTimelineDataLocal(file); // Call the function to load data from local file
+        }
+    });
+
+    // Event listener for the hide popups checkbox
+    // No specific action needed here, the state is checked in processNextChangeGroup and slider input
+
+</script>
+
+</body>
+</html>
+
