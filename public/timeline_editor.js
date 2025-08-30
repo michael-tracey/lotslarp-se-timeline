@@ -682,33 +682,38 @@
     applyBulkShiftButton.addEventListener('click', handleApplyBulkShift);
 
 
-    // Load the MSA GeoJSON data when the page loads
-    loadJsonData('https://raw.githubusercontent.com/loganpowell/census-geojson/master/GeoJSON/20m/2017/metropolitan-statistical-area!micropolitan-statistical-area.json', (data) => {
-        msaGeoJSON = data;
-        console.log("MSA GeoJSON loaded for mini-map.");
-        loadTimelineDataFromFirestore((data) => {
-            timelineData = data;
-            console.log("Timeline data loaded successfully from Firestore.");
-            populateMsaList(); // Populate the list after loading data
-            populateMissingMsasDropdown(); // Populate missing MSAs dropdown
-            populateCloneSourceDropdown(); // Populate clone source dropdown
-            editorArea.style.display = 'none'; // Hide editor until an MSA is selected
-            if (miniMap) { // Remove mini-map if it exists
-                miniMap.remove();
-                miniMap = null;
-            }
-            document.getElementById('mini-map').innerHTML = ''; // Clear map container
-            if (selectedMsaMap) { // Remove selected MSA map if it exists
-                selectedMsaMap.remove();
-                selectedMsaMap = null;
-            }
-            document.getElementById('selected-msa-map').innerHTML = ''; // Clear map container
-            validationErrorDiv.textContent = ''; // Clear previous validation errors
-            initializeMiniMap(); // Re-initialize mini-map with all MSAs
-        }, () => {
-            showSnackbar("Could not load timeline data from the database.");
+    fetch('https://raw.githubusercontent.com/loganpowell/census-geojson/master/GeoJSON/20m/2017/metropolitan-statistical-area!micropolitan-statistical-area.json')
+        .then(response => response.json())
+        .then(data => {
+            msaGeoJSON = data;
+            console.log("MSA GeoJSON loaded for mini-map.");
+            loadTimelineDataFromFirestore((data) => {
+                timelineData = data;
+                console.log("Timeline data loaded successfully from Firestore.");
+                populateMsaList(); // Populate the list after loading data
+                populateMissingMsasDropdown(); // Populate missing MSAs dropdown
+                populateCloneSourceDropdown(); // Populate clone source dropdown
+                editorArea.style.display = 'none'; // Hide editor until an MSA is selected
+                if (miniMap) { // Remove mini-map if it exists
+                    miniMap.remove();
+                    miniMap = null;
+                }
+                document.getElementById('mini-map').innerHTML = ''; // Clear map container
+                if (selectedMsaMap) { // Remove selected MSA map if it exists
+                    selectedMsaMap.remove();
+                    selectedMsaMap = null;
+                }
+                document.getElementById('selected-msa-map').innerHTML = ''; // Clear map container
+                validationErrorDiv.textContent = ''; // Clear previous validation errors
+                initializeMiniMap(); // Re-initialize mini-map with all MSAs
+            }, () => {
+                showSnackbar("Could not load timeline data from the database.");
+            });
+        })
+        .catch(error => {
+            console.error('Error loading MSA GeoJSON:', error);
+            showSnackbar("Error loading map data. Please try again later.");
         });
-    });
 
     saveChangesButton.addEventListener('click', function() {
         const validationErrors = validateTimelineData(timelineData);

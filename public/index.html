@@ -1,89 +1,478 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
-
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.2.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.2.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LotsLarp Sect Timeline</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="shared-styles.css"/>
+    <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
     </script>
-  </body>
+    <style>
+        body {
+            /* Common styles (font-family, background-color, color, margin) moved to shared-styles.css */
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1 {
+            /* text-align: center; moved to shared-styles.css */
+            color: #e5e5e5;
+            margin-bottom: 20px;
+        }
+        .main-content-container {
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .left-sidebar-wrapper {
+            width: 300px;
+            flex-shrink: 0;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .info-panel-section {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-y: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .info-panel-section h2 {
+            /* Common h2 styles (color, text-align, margin-top) moved to shared-styles.css */
+            margin-bottom: 5px;
+        }
+        #map-container {
+            flex-grow: 1;
+            background-color: #333;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+         #map {
+             width: 100%;
+             flex-grow: 1;
+             position: relative; /* Needed for legend positioning */
+         }
+        .timeline-container {
+            margin-top: 10px;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px 0;
+            background-color: #444;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .timeline-container label {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+        .timeline-container input[type="range"] {
+            width: 80%;
+            max-width: 600px;
+            cursor: pointer;
+        }
+        .timeline-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .timeline-controls button {
+            margin: 0;
+            padding: 8px 15px;
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .timeline-controls button:hover {
+            background-color: #e03d00;
+        }
+        .timeline-container #current-year {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-left: 10px;
+            color: #ff4500;
+        }
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            width: auto;
+            max-width: 150px;
+        }
+        .legend h4 {
+            color: #ff4500;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+        .legend div {
+            margin-bottom: 5px;
+            color: #eee;
+        }
+
+        .leaflet-popup .leaflet-popup-content-wrapper {
+            background: rgba(0, 0, 0, 0.9);
+            color: #eee;
+            border-radius: 8px;
+        }
+
+        .leaflet-popup .leaflet-popup-tip {
+             background: rgba(0, 0, 0, 0.9);
+        }
+
+        .sect-popup .leaflet-popup-content {
+            font-size: 1.1em;
+        }
+        .sect-popup .leaflet-popup-content b {
+            color: #ff4500;
+        }
+
+        .multi-change-popup {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #eee;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            max-width: 250px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .multi-change-popup h4 {
+            margin-top: 0;
+            color: #ff4500;
+        }
+        .multi-change-popup ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .multi-change-popup li {
+            margin-bottom: 5px;
+        }
+
+        #map-year-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            left: auto;
+            transform: none;
+            font-size: 3em;
+            font-weight: bold;
+            color: #ff4500;
+            z-index: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .leaflet-control-container .leaflet-top.leaflet-left {
+             top: 10px;
+             left: 10px;
+        }
+
+         #changes-display {
+             padding: 15px;
+             background: rgba(0, 0, 0, 0.8);
+             color: #eee;
+             border-radius: 8px;
+             z-index: 900;
+             display: none;
+             text-align: left;
+             margin-top: 0;
+         }
+         #changes-display h4 {
+             margin-top: 0;
+             color: #ff4500;
+         }
+         #changes-display ul {
+             padding-left: 20px;
+             margin-bottom: 0;
+         }
+         #changes-display li {
+             margin-bottom: 5px;
+         }
+
+         .speed-controls {
+             display: flex;
+             align-items: center;
+             gap: 5px;
+         }
+         .speed-controls button {
+             padding: 5px 10px;
+             margin: 0;
+             background-color: #555;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+             transition: background-color 0.2s ease;
+         }
+         .speed-controls button:hover {
+             background-color: #777;
+         }
+         .speed-controls button.active {
+             background-color: #ff4500;
+         }
+
+         .advanced-options-section {
+             margin-top: 15px;
+             display: flex;
+             flex-direction: column;
+             gap: 10px;
+         }
+
+         #advanced-options-button {
+            display: block;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+         #advanced-options-button:hover {
+             background-color: #0056b3;
+         }
+
+         .advanced-options {
+             padding: 10px;
+             background-color: #333;
+             border-radius: 8px;
+             display: none;
+             text-align: left;
+             display: flex;
+             flex-direction: column;
+             gap: 10px;
+         }
+         .advanced-options p {
+             margin: 0;
+         }
+         .advanced-options input[type="file"] {
+             display: none;
+         }
+         .advanced-options label,
+         .advanced-options button {
+             display: inline-block;
+             padding: 8px 15px;
+             background-color: #007bff;
+             color: white;
+             border: none;
+             border-radius: 5px;
+             cursor: pointer;
+             font-size: 1em;
+             transition: background-color 0.3s ease;
+             margin-right: 10px;
+         }
+         .advanced-options label:hover,
+         .advanced-options button:hover {
+             background-color: #0056b3;
+         }
+         .advanced-options a {
+             color: #007bff;
+             text-decoration: none;
+             display: inline-block;
+         }
+         .advanced-options a:hover {
+             text-decoration: underline;
+         }
+
+         #timeline-editor-button {
+             display: inline-block;
+             padding: 8px 15px;
+             background-color: #007bff;
+             color: white;
+             border: none;
+             border-radius: 5px;
+             cursor: pointer;
+             font-size: 1em;
+             transition: background-color 0.3s ease;
+             margin-right: 10px;
+         }
+          #timeline-editor-button:hover {
+              background-color: #0056b3;
+          }
+
+
+         @media (max-width: 768px) {
+             h1 {
+                 display: none; /* Remove header on mobile */
+             }
+             .main-content-container {
+                 flex-direction: column;
+                 gap: 10px;
+                 padding: 0 10px;
+             }
+             .left-sidebar-wrapper {
+                 width: 100%;
+                 max-height: none;
+                 height: auto;
+                 order: 3; /* Sidebar comes after map and timeline */
+             }
+             #map-container {
+                 height: 400px; /* Adjust map height for mobile */
+                 order: 1; /* Map comes first */
+                 flex-direction: column; /* Stack map and timeline vertically */
+             }
+             #map {
+                 flex-grow: 1;
+                 height: auto; /* Allow map to take available height */
+             }
+             .timeline-container {
+                 order: 2; /* Timeline comes after the map */
+                 margin-top: 0; /* Remove top margin */
+             }
+             .timeline-container input[type="range"] {
+                 width: 95%;
+             }
+             .timeline-controls {
+                 flex-direction: column;
+                 gap: 10px;
+             }
+             .speed-controls button {
+                 margin: 0 5px;
+             }
+             .legend {
+                 position: static; /* Position legend statically within map container */
+                 margin-top: 10px; /* Add space below map */
+                 width: 100%; /* Make legend take full width */
+                 max-width: none; /* Remove max width */
+                 display: grid; /* Use grid for 2 columns */
+                 grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+                 gap: 5px; /* Gap between legend items */
+                 padding: 10px; /* Adjust padding */
+                 box-sizing: border-box; /* Include padding in width */
+             }
+             .legend h4 {
+                 grid-column: span 2; /* Make title span both columns */
+                 text-align: center;
+                 margin-bottom: 10px;
+             }
+             .legend div {
+                 margin-bottom: 0; /* Remove bottom margin */
+             }
+              #map-year-display {
+                  font-size: 2em;
+              }
+              #changes-display {
+                  position: static;
+                  margin-top: 10px;
+                  max-width: 100%;
+              }
+         }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>LotsLarp Sect Timeline</h1>
+
+    <div class="main-content-container">
+        <div class="left-sidebar-wrapper">
+            <div class="info-panel-section">
+                <h2>Info Panel</h2>
+                <div id="changes-display">
+                    <h4>Timeline Changes:</h4>
+                    <ul>
+                        </ul>
+                </div>
+            </div>
+            <div class="advanced-options-section">
+                 <button id="advanced-options-button">Advanced Options</button>
+                 <div class="advanced-options" id="advanced-options" style="display: none;">
+                     <p><button id="timeline-editor-button" onclick="window.open('timeline_editor.html', '_blank')">Open Timeline Editor</button></p>
+                 </div>
+            </div>
+        </div>
+
+        <div id="map-container">
+            <div id="map">
+                 <div class="legend">
+                    <h4>Sect Control</h4>
+                    <div><i style="background:#ff0000;"></i> Sabbat</div>
+                    <div><i style="background:#0000ff;"></i> Camarilla</div>
+                    <div><i style="background:#00ff00;"></i> Anarchs</div>
+                    <div><i style="background:#ffff00;"></i> Independent Alliance</div>
+                    <div><i style="background:#9b870c;"></i> Southern Lords</div>
+                    <div><i style="background:#800080;"></i> Contested</div>
+                    <div><i style="background:#cccccc;"></i> Unclaimed/Unknown</div>
+                </div>
+                 <div id="map-year-display">1495</div>
+            </div>
+
+            <div class="timeline-container">
+                <label for="year-slider">Year:</label>
+                <input type="range" id="year-slider" min="1495" max="2025" value="1495" step="1">
+                <span id="current-year">1495</span>
+                <div class="timeline-controls">
+                    <button id="play-pause-button">Play</button>
+                     <div class="speed-controls">
+                         Speed:
+                         <button data-speed="0.5">0.5x</button>
+                         <button data-speed="1" class="active">1x</button>
+                         <button data-speed="1.5">1.5x</button>
+                         <button data-speed="2">2x</button>
+                         <button data-speed="3">3x</button>
+                         <button data-speed="4">4x</button>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <div id="snackbar"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="shared-functions.js"></script>
+    <script src="southeast-sect-map.js"></script>
+
+</body>
 </html>
