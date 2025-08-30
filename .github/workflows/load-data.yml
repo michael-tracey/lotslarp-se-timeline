@@ -20,5 +20,5 @@ jobs:
 
     - name: Load Data
       env:
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LOTSLARP_15A15 }}
       run: node load_data.js
