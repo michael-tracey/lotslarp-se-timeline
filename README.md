@@ -1,61 +1,109 @@
-# **LotsLarp Sect Timeline**
+# LotsLarp Sect Timeline
 
-A web-based interactive map viewer and editor for visualizing the historical control of different vampire sects over Metropolitan Statistical Areas (MSAs) and key locations in the Southern and Eastern United States, based on the LotsLarp setting.
+A web-based interactive map viewer and editor for visualizing the historical control of different vampire sects over Metropolitan Statistical Areas (MSAs) and key locations in the Southern and Eastern United States, based on the LotsLarp setting. This project is now powered by Firebase for data storage and hosting.
 
-## **Features**
+## Features
 
-* Interactive map displaying sect control by year.  
-* Timeline slider to navigate through history.  
-* Play/Pause and adjustable speed controls for the timeline animation.  
-* Click on an MSA or point to view its full historical timeline in the info panel.  
-* Info panel to display timeline changes during animation and detailed history on click.  
-* Advanced options for loading local timeline data and opening the timeline editor.  
-* Timeline Editor (in a separate HTML file) for modifying the timeline data, adding/removing locations, and exporting changes.
+*   **Interactive Map:** Displays sect control by year on an interactive map.
+*   **Timeline Navigation:** A slider allows you to move through time and see how sect control has changed.
+*   **Playback Controls:** Play, pause, and adjust the speed of the timeline animation.
+*   **Info Panel:** Click on an MSA or point of interest to view its detailed history.
+*   **Firebase Backend:** Timeline data is stored in Firestore, providing a scalable and real-time database.
+*   **Timeline Editor:** A separate interface for creating, updating, and deleting timeline data directly in Firestore.
+*   **Deployment:** Easily deploy the application using Firebase Hosting.
 
-## **Getting Started**
+## Getting Started
 
-1. **Clone the repository:**  
-   git clone \<repository\_url\>
+### Prerequisites
 
-   Replace \<repository\_url\> with the actual URL of your GitHub repository.  
-2. **Navigate to the project directory:**  
-   cd lotslarp-sect-timeline
+*   [Node.js](https://nodejs.org/) installed on your local machine.
+*   A [Firebase](https://firebase.google.com/) project.
 
-3. Open the southeast-sect-map.html file:  
-   Simply open the southeast-sect-map.html file in your web browser. You do not need a web server to run the basic viewer.
+### Setup
 
-## **Usage**
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository_url>
+    cd lotslarp-sect-timeline
+    ```
 
-### **Map Viewer (index2.html)**
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-* **Timeline Navigation:** Use the slider at the bottom of the map to manually change the year and see the map update.  
-* **Play/Pause:** Click the "Play" button to start the timeline animation. Click it again to pause.  
-* **Speed Control:** Use the speed buttons (0.5x, 1x, 1.5x, 2x, 3x, 4x) to adjust the speed of the timeline animation. Clicking a speed button will also start the animation if it's paused.  
-* **Info Panel:** The panel on the left displays timeline changes as the animation progresses. Clicking on an MSA or a marked point on the map will display the full historical timeline for that location in this panel.  
-* **Legend:** The legend on the map shows the color coding for each sect.  
-* **Advanced Options:** Click the "Advanced Options" button below the Info Panel to reveal options for loading a local JSON data file or opening the Timeline Editor.
+3.  **Firebase Configuration:**
+    *   Create a new Firebase project in the [Firebase console](https://console.firebase.google.com/).
+    *   In your project's settings, create a new web app and copy the `firebaseConfig` object.
+    *   Create a file named `firebase-config.js` in the root of the project and paste the `firebaseConfig` object into it, like so:
+        ```javascript
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_AUTH_DOMAIN",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_STORAGE_BUCKET",
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
+        ```
 
-### **Timeline Editor (timeline\_editor.html)**
+4.  **Service Account Key:**
+    *   In your Firebase project settings, go to the "Service accounts" tab and generate a new private key.
+    *   Rename the downloaded JSON file to `serviceAccountKey.json` and place it in the root of the project.
+    *   **Important:** Add `serviceAccountKey.json` to your `.gitignore` file to prevent it from being committed to version control.
 
-* Open the Timeline Editor by clicking the "Open Timeline Editor" button in the Advanced Options of the map viewer, or by opening timeline\_editor.html directly in your browser.  
-* **Load Data:** Use the "Choose JSON File" input to load your lotslarp\_timeline\_data.json file into the editor.  
-* **Select MSA:** Click on an MSA name in the list on the right sidebar to load its timeline for editing.  
-* **Edit Timeline Entries:** Modify the start year, end year, sect, and description for each period in the selected MSA's timeline.  
-* **Add/Remove Entries:** Use the "Add Timeline Entry" button to add a new entry at the end, or the "Remove" button within each entry to delete it.  
-* **Add/Remove MSAs:** Use the buttons in the left sidebar to manually add a new MSA or remove the currently selected one.  
-* **Rename MSA:** Change the name of the selected MSA.  
-* **Search:** Filter the MSA list by typing in the search box.  
-* **Add Missing MSA:** Add an MSA from the GeoJSON data that is not currently in your timeline data.  
-* **Clone Timeline:** Copy the timeline data from one MSA to another.  
-* **Bulk Edit:** Shift all dates for the selected MSA's timeline by a specified number of years.  
-* **Export JSON:** Click the "Export JSON" button to download your modified timeline data as a JSON file.
+5.  **Load Data into Firestore:**
+    *   Run the `load_data.js` script to populate your Firestore database with the initial timeline data:
+        ```bash
+        node load_data.js
+        ```
 
-## **Data**
+### Running Locally
 
-The map uses a GeoJSON file containing the boundaries of US Metropolitan and Micropolitan Statistical Areas. The timeline data is stored in a JSON file (lotslarp\_timeline\_data.json) with a specific structure defining the historical control of sects over these areas and other key points.
+1.  **Start the Firebase Emulators:**
+    ```bash
+    firebase emulators:start
+    ```
+2.  Open your web browser and navigate to `http://localhost:5000` to see the application.
 
-You can modify the lotslarp\_timeline\_data.json file using the Timeline Editor to customize the history displayed on the map.
+## Usage
 
-## **Contributing**
+### Map Viewer
+
+*   **Timeline Navigation:** Use the slider at the bottom of the map to manually change the year.
+*   **Play/Pause:** Click the "Play" button to start the timeline animation.
+*   **Speed Control:** Adjust the animation speed with the provided buttons.
+*   **Info Panel:** Displays timeline changes as the animation progresses. Click on an MSA or a marked point to see its full history.
+
+### Timeline Editor (`timeline_editor.html`)
+
+*   Open the editor by navigating to `timeline_editor.html` in your browser.
+*   **Load Data:** The editor will automatically load the data from your Firestore database.
+*   **Select MSA:** Click on an MSA from the list to load its timeline for editing.
+*   **Edit Entries:** Modify the start year, end year, sect, and description for each period.
+*   **Add/Remove Entries:** Add new timeline entries or remove existing ones.
+*   **Save Changes:** Changes are automatically saved to Firestore as you make them.
+
+## Deployment
+
+This project is configured for deployment with Firebase Hosting.
+
+1.  **Login to Firebase:**
+    ```bash
+    firebase login
+    ```
+
+2.  **Deploy:**
+    ```bash
+    firebase deploy
+    ```
+
+This will deploy the contents of the `public` directory to Firebase Hosting.
+
+## Data
+
+The map uses a GeoJSON file containing the boundaries of US Metropolitan and Micropolitan Statistical Areas. The timeline data is stored in the `timeline` collection in Firestore.
+
+## Contributing
 
 If you have suggestions for improving the map viewer, editor, or the timeline data itself, feel free to open an issue or submit a pull request on the GitHub repository.
