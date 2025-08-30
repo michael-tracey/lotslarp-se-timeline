@@ -4,5 +4,8 @@
   },
   "devDependencies": {
     "firebase-tools": "^13.13.2"
+  },
+  "scripts": {
+    "build": "echo 'No build step required'"
   }
 }
