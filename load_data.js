@@ -18,7 +18,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // Path to your JSON file
-const jsonFilePath = './vampire-timeline-data.json';
+const jsonFilePath = './public/vampire-timeline-data.json';
 
 fs.readFile(jsonFilePath, 'utf8', (err, data) => {
   if (err) {
