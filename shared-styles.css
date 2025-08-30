@@ -1,0 +1,17 @@
+/* Shared base styles for LotsLarp timeline projects */
+body {
+    font-family: sans-serif;
+    background-color: #1a1a1a; /* Common dark background */
+    color: #eee; /* Common light text color */
+    margin: 0; /* Reset default margin */
+}
+
+h1 {
+    text-align: center; /* Common alignment for main page titles */
+}
+
+h2 {
+    color: #ff4500; /* Common brand/accent color for secondary headings */
+    text-align: center; /* Common alignment for secondary headings */
+    margin-top: 0; /* Remove default top margin for h2 */
+}
