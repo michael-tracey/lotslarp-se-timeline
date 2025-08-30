@@ -2,8 +2,13 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
 
-// IMPORTANT: Replace with the path to your service account key file.
-const serviceAccount = require('./serviceAccountKey.json');
+// IMPORTANT: Replace with the path to your service account key file if not using environment variables.
+let serviceAccount;
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+} else {
+  serviceAccount = require('../serviceAccountKey.json');
+}
 
 // Initialize the Firebase Admin SDK
 admin.initializeApp({
@@ -18,7 +23,7 @@ const jsonFilePath = './vampire-timeline-data.json';
 fs.readFile(jsonFilePath, 'utf8', (err, data) => {
   if (err) {
     console.error('Error reading the JSON file:', err);
-    return;
+    process.exit(1);
   }
 
   const timelineData = JSON.parse(data);
@@ -37,5 +42,6 @@ fs.readFile(jsonFilePath, 'utf8', (err, data) => {
     })
     .catch((error) => {
       console.error('Error uploading data to Firestore:', error);
+      process.exit(1);
     });
 });

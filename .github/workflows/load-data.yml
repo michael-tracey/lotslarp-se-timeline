@@ -1,0 +1,24 @@
+name: Load Timeline Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  load-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Load Data
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+      run: node load_data.js
